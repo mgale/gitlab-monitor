@@ -5,25 +5,24 @@
         'href': require('../assets/icons.svg') + '#' + name,
         'xlink:href': require('../assets/icons.svg') + '#' + name
       }"
-    >
-    </use>
+    />
   </svg>
 </template>
 
 <script>
-  export default {
-    name: 'gitlab-icon',
-    props: {
-      'name': {},
-      'size': {
-        default: 16
-      }
-    }
-  }
+export default {
+  name: "gitlab-icon",
+  props: {
+    name: {},
+    size: {
+      default: 16,
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  svg {
-    fill: currentColor;
-  }
+svg {
+  fill: currentColor;
+}
 </style>

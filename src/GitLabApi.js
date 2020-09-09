@@ -1,6 +1,6 @@
-import axios  from 'axios'
-import parse  from 'parse-link-header'
-import Vue    from 'vue'
+import axios from 'axios'
+import parse from 'parse-link-header'
+import Vue from 'vue'
 import Config from './Config'
 
 const GitLabApi = {}

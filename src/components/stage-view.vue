@@ -12,80 +12,80 @@
 </template>
 
 <script>
-  import Config from '../Config'
-  import JobView from './job-view'
+import Config from "../Config";
+import JobView from "./job-view";
 
-  export default {
-    components: {
-      JobView
+export default {
+  components: {
+    JobView,
+  },
+  name: "stage-view",
+  props: ["stage", "project"],
+  computed: {
+    showStagesNames() {
+      return Config.root.showStagesNames;
     },
-    name: 'stage-view',
-    props: ['stage', 'project'],
-    computed: {
-      showStagesNames() {
-        return Config.root.showStagesNames;
-      }
-    }
-  }
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  .stage-view {
-    display: inline-block;
-    color: rgba(255, 255, 255, 0.8);
+.stage-view {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.8);
 
-    &:not(.with-name) {
-      .pipe.before {
-        display: none;
-      }
-      .pipe.after {
-        min-width: auto;
-      }
-      .stage-title {
-        display: none;
-      }
-      padding-bottom: 0;
+  &:not(.with-name) {
+    .pipe.before {
+      display: none;
     }
-
-    &:first-child {
-      .pipe.before {
-        display: none;
-      }
-      .stage-title {
-        padding-left: 0;
-        text-align: left;
-      }
+    .pipe.after {
+      min-width: auto;
     }
-
-    &:last-child {
-      .pipe.after {
-        display: none;
-      }
-      .stage-title {
-        padding-right: 0;
-        text-align: right;
-      }
-    }
-
     .stage-title {
-      padding: 3px 9px 3px 9px;
-      line-height: 12px;
-      box-sizing: border-box;
-      font-size: 12px;
-      text-align: center;
+      display: none;
     }
+    padding-bottom: 0;
+  }
 
-    .jobs-queue {
-      display: flex;
-      align-items: center;
+  &:first-child {
+    .pipe.before {
+      display: none;
     }
-
-    .pipe {
-      height: 2px;
-      background-color: rgba(255, 255, 255, 0.8);
-      width: 6px;
-      flex-grow: 1;
-      min-width: 18px;
+    .stage-title {
+      padding-left: 0;
+      text-align: left;
     }
   }
+
+  &:last-child {
+    .pipe.after {
+      display: none;
+    }
+    .stage-title {
+      padding-right: 0;
+      text-align: right;
+    }
+  }
+
+  .stage-title {
+    padding: 3px 9px 3px 9px;
+    line-height: 12px;
+    box-sizing: border-box;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .jobs-queue {
+    display: flex;
+    align-items: center;
+  }
+
+  .pipe {
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 6px;
+    flex-grow: 1;
+    min-width: 18px;
+  }
+}
 </style>

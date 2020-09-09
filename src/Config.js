@@ -1,8 +1,8 @@
 import { getQueryParameter } from './util'
-import merge                 from 'deepmerge'
-import defaultConfig         from './config.default'
-import base64Url             from 'base64url'
-import YAML                  from 'yaml'
+import merge from 'deepmerge'
+import defaultConfig from './config.default'
+import base64Url from 'base64url'
+import YAML from 'yaml'
 
 export default new class Config {
   constructor() {
