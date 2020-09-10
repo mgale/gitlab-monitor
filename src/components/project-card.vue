@@ -11,6 +11,22 @@
         rel="noopener noreferrer"
         :href="project !== null ? project.web_url : '#'"
       >{{ project !== null ? project.name : 'Loading project...' }}</a>
+
+      <div class="environment-container">
+        <em
+          v-if="environments !== null && environmentCount === 0"
+          class="no-environments"
+        >No recent Environments</em>
+        <div v-else-if="environments !== null">
+          <template v-for="refName in refNames">
+            <div v-for="environment in environments[refName]" :key="environment.id">
+              <environment-view :environment="environment" :project="project" />
+            </div>
+          </template>
+        </div>
+        <octicon v-else name="sync" scale="1.4" spin />
+      </div>
+
       <div class="pipeline-container">
         <em
           v-if="pipelines !== null && pipelineCount === 0"
@@ -63,6 +79,8 @@ export default {
     project: null,
     pipelines: null,
     pipelineCount: 0,
+    environments: null,
+    environmentCount: 0,
     refNames: [],
     badges: [],
     status: "",
@@ -113,6 +131,7 @@ export default {
   watch: {
     project() {
       this.fetchPipelines();
+      this.fetchEnvironments();
       if (Config.root.badges) this.fetchBadges();
     },
     pipelines: {
@@ -220,6 +239,13 @@ export default {
       this.project = await this.$api(`/projects/${this.projectId}`);
       this.$emit("input", this.project.last_activity_at);
 
+      this.loading = false;
+    },
+    async fetchEnvironments() {
+      this.loading = true;
+
+      this.environments = [];
+      this.environmentCount = 0;
       this.loading = false;
     },
     async fetchPipelines() {
@@ -433,7 +459,16 @@ export default {
       padding: 8px 0 0 0;
     }
 
+    .environment-container {
+      padding: 8px 0 0 0;
+    }
+
     .no-pipelines {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 10px;
+    }
+
+    .no-environments {
       color: rgba(255, 255, 255, 0.5);
       font-size: 10px;
     }
