@@ -35,18 +35,27 @@
               <gitlab-icon class="pipeline-icon" name="status_skipped_borderless" size="24" />Pipeline skipped
             </div>
           </div>
-          <gitlab-icon
-            v-if="showDurations && duration !== null"
-            class="clock-icon"
-            name="clock"
-            size="10"
-          />
-          <span v-if="showDurations && duration !== null" class="duration">{{ durationString }}</span>
-          <gitlab-icon v-if="duration !== null" class="user-icon" name="user" size="10" />
-          <span
-            v-if="environment.last_deployment.user !== null"
-            class="user"
-          >{{ environment.last_deployment.user.name }}</span>
+
+          <div class="user">
+            <gitlab-icon class="user-icon" name="user" size="10" />
+            <span
+              v-if="environment.last_deployment.user !== null"
+              class="user"
+            >{{ environment.last_deployment.user.name }}</span>
+          </div>
+
+          <div class="duration">
+            <gitlab-icon
+              v-if="showDurations && duration !== null"
+              class="clock-icon"
+              name="clock"
+              size="10"
+            />
+            <span
+              v-if="environment.last_deployment.deployable.finished_at !== null"
+              class="duration"
+            >{{ convertTime(environment.last_deployment.deployable.finished_at) }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -126,6 +135,10 @@ export default {
     },
   },
   methods: {
+    convertTime(myDateString) {
+      const myDate = new Date(myDateString);
+      return myDate;
+    },
     async fetchJobs() {
       this.jobs = await this.$api(
         `/projects/${this.project.id}/pipelines/${this.environment.last_deployment.deployable.pipeline.id}/jobs?per_page=50`
@@ -197,19 +210,6 @@ export default {
     margin-bottom: 4px;
   }
 
-  .branch {
-    color: rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    padding: 0 0 2px 0;
-    text-decoration: none;
-
-    .octicon {
-      margin-right: 4px;
-    }
-  }
-
   .pipeline {
     display: flex;
     align-items: center;
@@ -252,7 +252,7 @@ export default {
     .duration {
       color: rgba(255, 255, 255, 0.8);
       line-height: 1;
-      font-size: 14px;
+      font-size: 12px;
       margin-right: 6px;
     }
 
@@ -264,7 +264,8 @@ export default {
     .user {
       color: rgba(255, 255, 255, 0.8);
       line-height: 1;
-      font-size: 12px;
+      font-size: 14px;
+      margin: 5px;
     }
 
     .skipped {
@@ -283,10 +284,6 @@ export default {
     color: white;
     height: 30px;
 
-    &.with-stages-names {
-      padding-bottom: 20px;
-    }
-
     .environment-id-link {
       display: inline-flex;
       align-items: center;
@@ -303,44 +300,6 @@ export default {
     .environment-id {
       margin-right: 8px;
       color: rgba(255, 255, 255, 0.8);
-    }
-
-    .stages {
-      white-space: nowrap;
-      margin-right: 8px;
-      align-self: start;
-    }
-
-    .clock-icon {
-      margin-right: 3px;
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    .duration {
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1;
-      font-size: 14px;
-      margin-right: 6px;
-    }
-
-    .user-icon {
-      margin-right: 3px;
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    .user {
-      color: rgba(255, 255, 255, 0.8);
-      line-height: 1;
-      font-size: 12px;
-    }
-
-    .skipped {
-      display: flex;
-      align-items: center;
-      border: 2px solid white;
-      padding: 1px 9px 1px 1px;
-      border-radius: 8px;
-      font-size: smaller;
     }
   }
 }

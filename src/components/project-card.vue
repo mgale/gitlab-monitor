@@ -30,7 +30,7 @@
         </div>
         <octicon v-else name="sync" scale="1.4" spin />
       </div>
-
+      <hr class="dashed" />
       <div class="pipeline-container">
         <em
           v-if="pipelines !== null && pipelineCount === 0"
