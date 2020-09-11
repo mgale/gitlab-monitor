@@ -18,9 +18,13 @@
           class="no-environments"
         >No recent Environments</em>
         <div v-else-if="environments !== null">
-          <template v-for="refName in refNames">
-            <div v-for="environment in environments[refName]" :key="environment.id">
-              <environment-view :environment="environment" :project="project" />
+          <template>
+            <div v-for="environment in environments" :key="environment.id">
+              <environment-view
+                :environment="environment"
+                :project="project"
+                :pipeline="environment.last_deployment.deployable.pipeline"
+              />
             </div>
           </template>
         </div>
@@ -64,12 +68,14 @@ import "vue-octicon/icons/git-branch";
 import "vue-octicon/icons/sync";
 import Config from "../Config";
 import GitlabIcon from "./gitlab-icon";
+import EnvironmentView from "./environment-view";
 import PipelineView from "./pipeline-view";
 import merge from "deepmerge";
 
 export default {
   components: {
     GitlabIcon,
+    EnvironmentView,
     PipelineView,
     Octicon,
   },
@@ -244,8 +250,29 @@ export default {
     async fetchEnvironments() {
       this.loading = true;
 
-      this.environments = [];
-      this.environmentCount = 0;
+      const fetchCount = Config.root.fetchCount;
+      let count = 0;
+      const environments = await this.$api(
+        `/projects/${this.projectId}/environments`
+      );
+
+      const resolvedEnvironments = [];
+
+      if (environments.length > 0) {
+        for (const environment of environments) {
+          const resolvedEnvironment = await this.$api(
+            `/projects/${this.projectId}/environments/${environment.id}`
+          );
+          resolvedEnvironments.push(resolvedEnvironment);
+          count++;
+        }
+      }
+
+      resolvedEnvironments.sort((a, b) =>
+        a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+      );
+      this.environments = resolvedEnvironments;
+      this.environmentCount = count;
       this.loading = false;
     },
     async fetchPipelines() {
