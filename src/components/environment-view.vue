@@ -3,59 +3,52 @@
     <octicon v-if="loading" name="sync" scale="1.4" spin />
 
     <div v-else>
-      <div :class="environment">
+      <a
+        class="environment"
+        target="_blank"
+        rel="noopener noreferrer"
+        :href="project.web_url + '/environments/' + environment.environment.id"
+      >
+        <gitlab-icon class="environment-icon" name="epic" size="12" />
+        {{ environment.environment.name }}
+      </a>
+
+      <div :class="['pipeline', {'with-stages-names': showStagesNames}]">
         <a
-          class="environment"
+          class="pipeline-id-link"
           target="_blank"
           rel="noopener noreferrer"
-          :href="project.web_url + '/environments/' + environment.id"
+          :href="project.web_url + '/pipelines/' + pipeline.id"
         >
-          <gitlab-icon class="environment-icon" name="epic" size="12" />
-          {{ environment.name }}
+          <gitlab-icon v-if="showPipelineIds" class="pipeline-icon" name="hashtag" size="12" />
+          <div v-if="showPipelineIds" class="pipeline-id">{{ pipeline.id }}</div>
         </a>
-
-        <div :class="['pipeline', {'with-stages-names': showStagesNames}]">
-          <a
-            class="pipeline-id-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            :href="project.web_url + '/pipelines/' + pipeline.id"
-          >
-            <gitlab-icon v-if="showPipelineIds" class="pipeline-icon" name="hashtag" size="12" />
-            <div v-if="showPipelineIds" class="pipeline-id">{{ pipeline.id }}</div>
-          </a>
-          <div class="stages">
-            <stage-view
-              v-for="stage in stages"
-              :key="stage.name"
-              :stage="stage"
-              :project="project"
-            />
-            <div class="skipped" v-if="pipeline.status === 'skipped'">
-              <gitlab-icon class="pipeline-icon" name="status_skipped_borderless" size="24" />Pipeline skipped
-            </div>
+        <div class="stages">
+          <stage-view v-for="stage in stages" :key="stage.name" :stage="stage" :project="project" />
+          <div class="skipped" v-if="pipeline.status === 'skipped'">
+            <gitlab-icon class="pipeline-icon" name="status_skipped_borderless" size="24" />Pipeline skipped
           </div>
+        </div>
 
-          <div class="user">
-            <gitlab-icon class="user-icon" name="user" size="10" />
-            <span
-              v-if="environment.last_deployment.user !== null"
-              class="user"
-            >{{ environment.last_deployment.user.name }}</span>
-          </div>
+        <div class="duration">
+          <gitlab-icon
+            v-if="showDurations && duration !== null"
+            class="clock-icon"
+            name="clock"
+            size="10"
+          />
+          <span
+            v-if="environment.deployable.finished_at !== null"
+            class="duration"
+          >{{ convertTime(environment.deployable.finished_at) }}</span>
+        </div>
 
-          <div class="duration">
-            <gitlab-icon
-              v-if="showDurations && duration !== null"
-              class="clock-icon"
-              name="clock"
-              size="10"
-            />
-            <span
-              v-if="environment.last_deployment.deployable.finished_at !== null"
-              class="duration"
-            >{{ convertTime(environment.last_deployment.deployable.finished_at) }}</span>
-          </div>
+        <div class="user">
+          <gitlab-icon class="user-icon" name="user" size="10" />
+          <span
+            v-if="environment.deployable.user !== null"
+            class="user"
+          >{{ environment.deployable.user.name }}</span>
         </div>
       </div>
     </div>
@@ -137,11 +130,13 @@ export default {
   methods: {
     convertTime(myDateString) {
       const myDate = new Date(myDateString);
-      return myDate;
+      var myd = myDate.toDateString();
+      var myt = myDate.toLocaleTimeString();
+      return "".concat(myd, ", ", myt);
     },
     async fetchJobs() {
       this.jobs = await this.$api(
-        `/projects/${this.project.id}/pipelines/${this.environment.last_deployment.deployable.pipeline.id}/jobs?per_page=50`
+        `/projects/${this.project.id}/pipelines/${this.environment.deployable.pipeline.id}/jobs?per_page=50`
       );
 
       this.stages = this.jobs.reduce(function (stages, job) {
@@ -242,6 +237,7 @@ export default {
       white-space: nowrap;
       margin-right: 8px;
       align-self: start;
+      min-width: 100px;
     }
 
     .clock-icon {
@@ -252,8 +248,9 @@ export default {
     .duration {
       color: rgba(255, 255, 255, 0.8);
       line-height: 1;
-      font-size: 12px;
+      font-size: 14px;
       margin-right: 6px;
+      min-width: 240px;
     }
 
     .user-icon {
@@ -295,6 +292,9 @@ export default {
       height: 16px;
       margin-right: 1px;
       color: rgba(255, 255, 255, 0.8);
+      text: {
+        clear: left;
+      }
     }
 
     .environment-id {

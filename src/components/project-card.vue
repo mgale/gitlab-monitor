@@ -23,7 +23,7 @@
               <environment-view
                 :environment="environment"
                 :project="project"
-                :pipeline="environment.last_deployment.deployable.pipeline"
+                :pipeline="environment.deployable.pipeline"
               />
             </div>
           </template>
@@ -249,6 +249,9 @@ export default {
     },
     async fetchEnvironments() {
       this.loading = true;
+      // Only look back X days for environments.
+      var environmentSinceDate = new Date();
+      environmentSinceDate.setDate(environmentSinceDate.getDate() - 30);
 
       const fetchCount = Config.root.fetchCount;
       let count = 0;
@@ -256,21 +259,24 @@ export default {
         `/projects/${this.projectId}/environments`
       );
 
+      environments.sort((a, b) =>
+        a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+      );
+
       const resolvedEnvironments = [];
 
       if (environments.length > 0) {
         for (const environment of environments) {
           const resolvedEnvironment = await this.$api(
-            `/projects/${this.projectId}/environments/${environment.id}`
+            `/projects/${this.projectId}/deployments?environment=${
+              environment.name
+            }&sort=desc&updated_after=${environmentSinceDate.toISOString()}`
           );
-          resolvedEnvironments.push(resolvedEnvironment);
+          resolvedEnvironments.push(resolvedEnvironment[0]);
           count++;
         }
       }
 
-      resolvedEnvironments.sort((a, b) =>
-        a.name > b.name ? 1 : b.name > a.name ? -1 : 0
-      );
       this.environments = resolvedEnvironments;
       this.environmentCount = count;
       this.loading = false;
